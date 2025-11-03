@@ -11,6 +11,7 @@
         grid-template-columns: repeat(10, 60px);
         width: 600px;
         height: 600px;
+        text-align: center;
     }
 
     .contr {
@@ -22,7 +23,7 @@
 <body>
 <table width="720px">
     <tr>
-        <td colspan="3"><div class="contr" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
+        <td colspan="3"><div class="contr" id="horizontal" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
     </tr>
     <tr>
         <td><div class="contr" style="height: 100%; width: 60px; grid-template-rows: repeat(10, 60px);"></div></td>
@@ -30,7 +31,7 @@
         <td><div class="contr" style="height: 100%; grid-template-rows: repeat(10, 60px);"></div></td>
     </tr>
     <tr>
-        <td colspan="3"><div class="contr" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
+        <td colspan="3"><div class="contr" id="horizontal" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
     </tr>   
 </table>
     <form id="rotate" action="">
@@ -40,18 +41,11 @@
     
 </body>
 <script>
+    const container = document.getElementById('container');
     for (let i = 0; i < 100; i++) {
-        // console.log('d');
-        /*
-        if (i % 11 == 0 || Math.floor(i / 10) % 9 == 0 || i == 10 || i == 100) {
-            const square = document.createElement('button');
-            square.textContent = i - 1;
-            document.getElementById('container').appendChild(square);
-        } else {
-         */
         const square = document.createElement('div');
         square.textContent = i;
-        document.getElementById('container').appendChild(square);
+        container.appendChild(square);
     }
 
     const contr = document.querySelectorAll('.contr');
@@ -60,6 +54,16 @@
             const square = document.createElement('button');
             square.textContent = i;
             e.appendChild(square);
+            square.onclick = function() {
+                for (let j = 0; j < 10; j++) {
+                    if (e.id == 'horizontal') {
+                        container.children[i + j * 10].style.background = '#000000';
+                    } else {
+                        container.children[i * 10 + j].style.background = '#000000';
+                    }
+                    
+                }
+            }
         }
     });
 </script>
