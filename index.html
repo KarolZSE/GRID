@@ -53,7 +53,10 @@
             square.textContent = i;
             e.appendChild(square);
             square.onclick = function() {
-                if (!planes) return;
+                if (!planes) {
+                    CountFilledSquares();
+                    return;
+                };
                 for (let j = 0; j < 10; j++) {
                     let gridsquare;
                     if (e.id == 'horizontal') {
@@ -71,5 +74,21 @@
             }
         }
     });
+
+    function CountFilledSquares() {
+        let count = stonescount = 0;
+
+        for (let i = 0; i < 100; i++) {
+            if (container.children[i].style.background == 'rgb(0, 0, 0)') {
+                count++
+            }
+
+            if (container.children[i].style.background == 'rgb(128, 128, 126)') {
+                stonescount++
+            }
+        }
+
+        console.log(`You had filled in ${count}, which equals to ${(count / (100 - stonescount) * 100).toFixed(2)}% of the board (excluding bolders).`);
+    }
 </script>
 </html>
