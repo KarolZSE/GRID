@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #container {
+        display: grid;
+        grid-template-columns: repeat(10, 60px);
+        width: 600px;
+        height: 600px;
+    }
+
+    .contr {
+        display: grid;
+        width: 60px;
+        height: 60px;
+    }
+</style>
+<body>
+<table width="720px">
+    <tr>
+        <td colspan="3"><div class="contr" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
+    </tr>
+    <tr>
+        <td><div class="contr" style="height: 100%; width: 60px; grid-template-rows: repeat(10, 60px);"></div></td>
+        <td><div id="container"></div></td>
+        <td><div class="contr" style="height: 100%; grid-template-rows: repeat(10, 60px);"></div></td>
+    </tr>
+    <tr>
+        <td colspan="3"><div class="contr" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
+    </tr>   
+</table>
+    <form id="rotate" action="">
+        <input type="radio" value="123">Horizontal
+        <input type="radio" value="123">Vertical
+    </form>
+    
+</body>
+<script>
+    for (let i = 0; i < 100; i++) {
+        // console.log('d');
+        /*
+        if (i % 11 == 0 || Math.floor(i / 10) % 9 == 0 || i == 10 || i == 100) {
+            const square = document.createElement('button');
+            square.textContent = i - 1;
+            document.getElementById('container').appendChild(square);
+        } else {
+         */
+        const square = document.createElement('div');
+        square.textContent = i;
+        document.getElementById('container').appendChild(square);
+    }
+
+    const contr = document.querySelectorAll('.contr');
+    contr.forEach(e => {
+        for (let i = 0; i < 10; i++) {
+            const square = document.createElement('button');
+            square.textContent = i;
+            e.appendChild(square);
+        }
+    });
+</script>
+</html>
