@@ -45,7 +45,7 @@
         container.appendChild(square);
     }
 
-    let planes = 5;
+    let planes = 0;
     const contr = document.querySelectorAll('.contr');
     contr.forEach(e => {
         for (let i = 0; i < 10; i++) {
@@ -53,10 +53,10 @@
             square.textContent = i;
             e.appendChild(square);
             square.onclick = function() {
-                if (!planes) {
-                    CountFilledSquares();
+                if (!CountFilledSquares()) {
+                    console.log(planes); 
                     return;
-                };
+                }
                 for (let j = 0; j < 10; j++) {
                     let gridsquare;
                     if (e.id == 'horizontal') {
@@ -70,27 +70,28 @@
                     } 
                 }
                 square.onclick = '';
-                planes--;
+                planes++;
             }
         }
     });
 
     function CountFilledSquares() {
-        let count = stonescount = 0;
+        let count = 0;
         const child = container.children;
 
         for (let i = 0; i < 100; i++) {
             const childbg = child[i].style.background;
-            if (childbg == 'rgb(0, 0, 0)') {
+            if (childbg == 'rgb(102, 76, 40)') {
                 count++
             }
 
+            /*
             if (childbg == 'rgb(128, 128, 126)') {
                 stonescount++
             }
+                */
         }
-
-        console.log(`You had filled in ${count}, which equals to ${(count / (100 - stonescount) * 100).toFixed(2)}% of the board (excluding bolders).`);
+        return count;
     }
 </script>
 </html>
