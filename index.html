@@ -6,6 +6,11 @@
     <title>Document</title>
 </head>
 <style>
+    body {
+        margin: 0; 
+        padding: 0;
+    }
+
     #container {
         display: grid;
         grid-template-columns: repeat(10, 60px);
@@ -19,19 +24,27 @@
         width: 60px;
         height: 60px;
     }
+
+    .plane {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border: 1px solid black;
+        transition: all 1s linear;
+    }
 </style>
 <body>
 <table width="720px">
     <tr>
-        <td colspan="3"><div class="contr" id="horizontal" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
+        <td colspan="3"><div class="contr" id="verticaltop" style="width: 100%; grid-template-columns: repeat(11, 60px);"><div></div></div></td>
     </tr>
     <tr>
-        <td><div class="contr" style="height: 100%; width: 60px; grid-template-rows: repeat(10, 60px);"></div></td>
+        <td><div class="contr" id="horizontalleft" style="height: 100%; width: 60px; grid-template-rows: repeat(10, 60px);"></div></td>
         <td><div id="container"></div></td>
         <td><div class="contr" style="height: 100%; grid-template-rows: repeat(10, 60px);"></div></td>
     </tr>
     <tr>
-        <td colspan="3"><div class="contr" id="horizontal" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
+        <td colspan="3"><div class="contr" id="verticalbottom" style="width: 100%; grid-template-columns: repeat(11, 60px);"><div></div></div></td>
     </tr>   
 </table>
 </body>
@@ -57,17 +70,60 @@
                     CountFilledSquares();
                     return;
                 };
+
+                const plane = document.createElement('div');
+                plane.classList.add('plane');
+
+                const containerRect = container.getBoundingClientRect();
+
+                if (e.id == 'verticaltop') {
+                    plane.style.left = (containerRect.left + i * 60) + 'px';
+                    plane.style.top = (containerRect.top - 60) + 'px';
+                    setTimeout(() => {
+                        plane.style.top = (containerRect.top + 600) + 'px';
+                    }, 0);
+                } else if (e.id == 'verticalbottom') {
+                    plane.style.left = (containerRect.left + i * 60) + 'px';
+                    plane.style.top = (containerRect.top + 600) + 'px';
+                    setTimeout(() => {
+                        plane.style.top = (containerRect.top - 60) + 'px';
+                    }, 0);
+                } else if (e.id == 'horizontalleft'){
+                    plane.style.left = (containerRect.left - 60) + 'px';
+                    plane.style.top = (containerRect.top + i * 60) + 'px';
+                    setTimeout(() => {
+                        plane.style.left = (containerRect.left + 600) + 'px';
+                    }, 0);
+                } else {
+                    plane.style.left = (containerRect.left + 600) + 'px';
+                    plane.style.top = (containerRect.top + i * 60) + 'px';
+                    setTimeout(() => {
+                        plane.style.left = (containerRect.left - 60) + 'px';
+                    }, 0);
+                }
+                setTimeout(() => {
+                    plane.remove();
+                }, 1000);
+
+                document.body.appendChild(plane);
+
                 for (let j = 0; j < 10; j++) {
                     let gridsquare;
-                    if (e.id == 'horizontal') {
+                    if (e.id == 'verticaltop') {
                         gridsquare = container.children[i + j * 10];
-                    } else {
+                    } else if (e.id == 'verticalbottom') {
+                        gridsquare = container.children[100 - (10 - i + j * 10)];
+                    } else if (e.id == 'horizontalleft'){
                         gridsquare = container.children[i * 10 + j];
+                    } else {
+                        gridsquare = container.children[i * 10 + 9 - j];
                     }
 
-                    if (gridsquare.style.background !== 'rgb(128, 128, 126)') {
-                        gridsquare.style.background = '#000000';
-                    } 
+                    setTimeout(() => {
+                        if (gridsquare.style.background !== 'rgb(128, 128, 126)') {
+                            gridsquare.style.background = '#000000';
+                        } 
+                    }, 100 * j);
                 }
                 square.onclick = '';
                 planes--;
