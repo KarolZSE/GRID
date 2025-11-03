@@ -10,6 +10,8 @@
         width: 60px;
         height: 60px;
         user-select: none;
+        display: inline-block;
+        box-sizing: border-box;
     }
 
     .contr {
@@ -37,4 +39,23 @@
         height: 60px;
         border: 1px solid black;
         user-select: none;
+    }
+
+    .pipe {
+        background: #ff47476c !important;
+    }
+
+    .rock {
+        background: #a86262 !important;
+    }
+
+    .start {
+        background: #28c713 !important;
+    }
+
+    .square {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #000;
+        box-sizing: border-box;
     }

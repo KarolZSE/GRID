@@ -100,19 +100,68 @@
 
 
     planes = 0;
-    container.innerHTML = '';
-    for (let i = 0; i < 100; i++) {
-        const square = document.createElement('div');
-        square.textContent = i;
-        // square.style.background = '';
-        // if (Math.random() > 0.7) square.style.background = '#80807e';
+    let grid = [];
+    let squares = [];
+    
+    function ResetGrid() {
+        container.innerHTML = '';
+        grid = [];
+        squares = [];
+
+        for (let i = 0; i < 10; i++) {
+            grid[i] = [];
+            squares[i] = [];
+            for (let j = 0; j < 10; j++) {
+                const square = document.createElement('div');
+                square.classList.add('square');
+                square.dataset.row = i;
+                square.dataset.col = j;
+
+                square.textContent = i;
+                square.setAttribute('draggable', 'true');
+                square.style.background = '';
+
+                if (Math.random() > 0.7) {
+                    square.style.background = '#80807e';
+                    grid[i][j] = 1;
+                } else {
+                    grid[i][j] = 0;
+                };
+
+                container.appendChild(square);
+                squares[i][j] = square;
+            }
+        }
+    }
+
+    /*
+    for (let i = 0; i < 10; i++) {
+        grid[i] = [];
+        for (let j = 0; j < 10; j++) {
+            const square = document.createElement('div');
+            square.dataset.row = i;
+            square.dataset.col = j;
+            square.textContent = i;
+            square.setAttribute('draggable', 'true');
+            square.style.background = '';
+        if (Math.random() > 0.7) {
+            square.style.background = '#80807e';
+            grid[i][j] = 1;
+        } else {
+            grid[i][j] = 0;
+        };
         container.appendChild(square);
 
-        let deg = 1
+        let deg = 1;
         square.onclick = function() {
             square.style.transform = `rotate(${deg * 90}deg)`;
             deg++;
         }
+
+        square.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', null);
+            draggedSquare = square;
+        })
 
         square.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -120,15 +169,132 @@
 
         square.addEventListener('drop', (e) => {
             e.preventDefault();
-            const color = e.dataTransfer.getData('text');
-            square.style.background = color;
-        });
-    }
+            if (draggedPipe) {
+                const color = e.dataTransfer.getData('text');
+                square.style.background = color;
+            }
 
+            if (draggedSquare && draggedSquare !== square) {
+                const container = square.parentNode;
+                const temp = document.createElement('div');
+                container.replaceChild(temp, square);
+                container.replaceChild(square, draggedSquare);
+                container.replaceChild(draggedSquare, temp);
+            }
+        });
+        }
+        container.appendChild(document.createElement('br'));
+    }
     const pipes = document.querySelectorAll('#pipes div');
 
     pipes.forEach(pipe => {
         pipe.addEventListener('dragstart', (e) => {
+            draggedPipe = pipe;
             e.dataTransfer.setData('text', pipe.style.background);
         });
     });
+
+    */
+
+    function getRandomEdgePoint() {
+        let edge = Math.floor(Math.random() * 4);
+        let x, y;
+
+        if (edge === 0) {
+            x = 0;
+            y = Math.floor(Math.random() * 10);
+        } else if (edge === 1) {
+            x = 10 - 1;
+            y = Math.floor(Math.random() * 10);
+        } else if (edge === 2) {
+            x = Math.floor(Math.random() * 10);
+            y = 0;
+        } else {
+            x = Math.floor(Math.random() * 10);
+            y = 10 - 1; 
+        }
+        return [x, y];
+    }
+
+    function findPath(start, end) {
+        let queue = [[start]];
+        let visited = Array.from({ length: 10 }, () => Array(10).fill(false));
+        visited[start[0]][start[1]] = true;
+
+        const directions = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1]
+        ];
+
+        while (queue.length > 0) {
+            let path = queue.shift();
+            let [x, y] = path[path.length - 1];
+
+            if (x === end[0] && y === end[1]) return path;
+
+            for (let [dx, dy] of directions) {
+                let nx = x + dx;
+                let ny = y + dy;
+
+                if (nx >= 0 && ny >= 0 && nx < 10 && ny < 10 && !visited[nx][ny] && grid[nx][ny] === 0) {
+                    visited[nx][ny] = true;
+                    queue.push([...path, [nx, ny]]);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function drawPipe(path) {
+        if (!path) return;
+        path.forEach(([x, y]) => {
+            const square = squares[x][y];
+            square.classList.add('pipe');
+        });
+    }
+
+    function generatePath() {
+        for (let i = 0; i < 10; i++) {
+            for (let j = 0; j < 10; j++) {
+                squares[i][j].classList.remove('pipe', 'start', 'end');
+            }
+        }
+
+        let start = getRandomEdgePoint();
+        let end = getRandomEdgePoint();
+
+        let attemps = 0;
+        while ((grid[start[0]][start[1]] === 1 || grid[end[0]][end[1]] === 1  || start[0] === end[0] && start[1] === end[1]) && attemps < 100) {
+            start = getRandomEdgePoint();
+            end = getRandomEdgePoint();
+            attemps++;
+        }
+
+        if (attemps >= 100) {
+            console.log('No solution');
+            return;
+        }
+
+        const path = findPath(start, end);
+
+        if (path) {
+            drawPipe(path);
+            squares[start[0]][start[1]].classList.add('start');
+            squares[end[0]][end[1]].classList.add('start');
+
+            console.log(start, end, path);
+        } else {
+            squares[start[0]][start[1]].classList.add('start');
+            squares[end[0]][end[1]].classList.add('start');
+
+            console.log('No path found!')
+            ResetGrid();
+            generatePath();
+        }
+    }
+
+    ResetGrid();
+    generatePath();
