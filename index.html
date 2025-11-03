@@ -34,20 +34,18 @@
         <td colspan="3"><div class="contr" id="horizontal" style="width: 100%; grid-template-columns: repeat(11, 60px);">.</div></td>
     </tr>   
 </table>
-    <form id="rotate" action="">
-        <input type="radio" value="123">Horizontal
-        <input type="radio" value="123">Vertical
-    </form>
-    
 </body>
 <script>
     const container = document.getElementById('container');
     for (let i = 0; i < 100; i++) {
         const square = document.createElement('div');
         square.textContent = i;
+        square.style.background = '#664c28';
+        if (Math.random() > 0.7) square.style.background = '#80807e';
         container.appendChild(square);
     }
 
+    let planes = 5;
     const contr = document.querySelectorAll('.contr');
     contr.forEach(e => {
         for (let i = 0; i < 10; i++) {
@@ -55,14 +53,21 @@
             square.textContent = i;
             e.appendChild(square);
             square.onclick = function() {
+                if (!planes) return;
                 for (let j = 0; j < 10; j++) {
+                    let gridsquare;
                     if (e.id == 'horizontal') {
-                        container.children[i + j * 10].style.background = '#000000';
+                        gridsquare = container.children[i + j * 10];
                     } else {
-                        container.children[i * 10 + j].style.background = '#000000';
+                        gridsquare = container.children[i * 10 + j];
                     }
-                    
+
+                    if (gridsquare.style.background !== 'rgb(128, 128, 126)') {
+                        gridsquare.style.background = '#000000';
+                    } 
                 }
+                square.onclick = '';
+                planes--;
             }
         }
     });
