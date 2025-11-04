@@ -121,7 +121,7 @@
                 square.setAttribute('draggable', 'true');
                 square.style.background = '';
 
-                if (Math.random() > 0.7) {
+                if (Math.random() > 0.6) {
                     square.style.background = '#80807e';
                     grid[i][j] = 1;
                 } else {
@@ -216,8 +216,14 @@
         return [x, y];
     }
 
-    function findPath(start, end) {
-        let queue = [[start]];
+    function getRandomInnerPoint() {
+        const x = 3 + Math.floor(Math.random() * 4);
+        const y = 3 + Math.floor(Math.random() * 4);
+        return [x, y];
+    }
+
+    function findPath(start, end, maxL = 10) {
+        let queue = [[[start], null, 0]];
         let visited = Array.from({ length: 10 }, () => Array(10).fill(false));
         visited[start[0]][start[1]] = true;
 
@@ -229,7 +235,7 @@
         ];
 
         while (queue.length > 0) {
-            let path = queue.shift();
+            let [path, lastDir, lCount] = queue.shift();
             let [x, y] = path[path.length - 1];
 
             if (x === end[0] && y === end[1]) return path;
@@ -238,9 +244,21 @@
                 let nx = x + dx;
                 let ny = y + dy;
 
-                if (nx >= 0 && ny >= 0 && nx < 10 && ny < 10 && !visited[nx][ny] && grid[nx][ny] === 0) {
-                    visited[nx][ny] = true;
-                    queue.push([...path, [nx, ny]]);
+                if (nx >= 0 && ny >= 0 && nx < 10 && ny < 10 && grid[nx][ny] === 0) {
+
+                    let isTurn = lastDir && (dx !== lastDir[0] || dy !== lastDir[1]);
+                    let newLCount = lCount + (isTurn ? 1 : 0);
+
+                    if (newLCount > maxL) continue;
+
+                    if (!visited[nx][ny]) {
+                        visited[nx][ny] = true;
+                        queue.push([
+                            [...path, [nx, ny]],
+                            [dx, dy],
+                            newLCount
+                        ]);
+                    }
                 }
             }
         }
@@ -263,33 +281,92 @@
             }
         }
 
-        let start = getRandomEdgePoint();
-        let end = getRandomEdgePoint();
-
+        let start, middles = [], end;
         let attemps = 0;
+
+        /*
         while ((grid[start[0]][start[1]] === 1 || grid[end[0]][end[1]] === 1  || start[0] === end[0] && start[1] === end[1]) && attemps < 100) {
             start = getRandomEdgePoint();
             end = getRandomEdgePoint();
             attemps++;
         }
+            */
 
-        if (attemps >= 100) {
+        while (attemps < 200) {
+            start = getRandomEdgePoint();
+            middles = [];
+
+            for (let i = 0; i < 3; i++) {
+                middles.push(getRandomInnerPoint());
+            }
+            
+            end = getRandomEdgePoint();
+
+            const [sx, sy] = start;
+            const [ex, ey] = end;
+
+            let allValid = grid[sx][sy] === 0 && grid[ex][ey] === 0;
+
+            for (let [mx, my] of middles) {
+                if (grid[mx][my] !== 0) {
+                    allValid = false;
+                    break;
+                }
+            }
+
+            if (allValid) {
+                let points = [start, ...middles, end];
+                let distancesValid = true;
+
+                for (let i = 0; i < points.length - 1; i++) {
+                    const distance = Math.abs(points[i][0] - points[i + 1][0]) + Math.abs(points[i][1] - points[i + 1][1]);
+                    if (distance < 5 || distance > 18) {
+                        distancesValid = false;
+                        break;
+                    }
+                }
+
+                if (distancesValid) break;
+            }
+            attemps++;
+        }
+
+        if (attemps >= 50) {
             console.log('No solution');
+            ResetGrid();
+            generatePath();
             return;
         }
 
-        const path = findPath(start, end);
+        let allPoints = [start, ...middles, end];
+        let allPathsValid = true;
 
-        if (path) {
-            drawPipe(path);
+        for (let i = 0; i < allPoints.length - 1; i++) {
+            const path = findPath(allPoints[i], allPoints[i + 1]);
+            if (path) {
+                drawPipe(path);
+
+                for (let j = 1; j < path.length - 1; j++) {
+                    grid[path[j][0]][path[j][1]] = 1;
+                }
+            } else {
+                allPathsValid = false;
+                break;
+            }
+        }
+
+        if (allPathsValid) {
             squares[start[0]][start[1]].classList.add('start');
-            squares[end[0]][end[1]].classList.add('start');
 
-            console.log(start, end, path);
+            console.log(end, end[0] > 2 && end[0] < 7 && end[1] > 2 && end[1] < 7);
+
+            for (let [mx, my] of middles) {
+                squares[mx][my].classList.add('middle-end');
+            }
+
+            squares[end[0]][end[1]].classList.add('end');
+            console.log(start, end);
         } else {
-            squares[start[0]][start[1]].classList.add('start');
-            squares[end[0]][end[1]].classList.add('start');
-
             console.log('No path found!')
             ResetGrid();
             generatePath();
