@@ -274,7 +274,9 @@
         });
     }
 
-    function generatePath() {
+function generatePath() {
+    let allPathsValid = false;
+    while (!allPathsValid) {
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 10; j++) {
                 squares[i][j].classList.remove('pipe', 'start', 'end');
@@ -284,15 +286,7 @@
         let start, middles = [], end;
         let attemps = 0;
 
-        /*
-        while ((grid[start[0]][start[1]] === 1 || grid[end[0]][end[1]] === 1  || start[0] === end[0] && start[1] === end[1]) && attemps < 100) {
-            start = getRandomEdgePoint();
-            end = getRandomEdgePoint();
-            attemps++;
-        }
-            */
-
-        while (attemps < 200) {
+        while (attemps < 50) {
             start = getRandomEdgePoint();
             middles = [];
 
@@ -334,12 +328,11 @@
         if (attemps >= 50) {
             console.log('No solution');
             ResetGrid();
-            generatePath();
-            return;
+            continue;
         }
 
         let allPoints = [start, ...middles, end];
-        let allPathsValid = true;
+        allPathsValid = true;
 
         for (let i = 0; i < allPoints.length - 1; i++) {
             const path = findPath(allPoints[i], allPoints[i + 1]);
@@ -366,12 +359,14 @@
 
             squares[end[0]][end[1]].classList.add('end');
             console.log(start, end);
+            break;
         } else {
             console.log('No path found!')
             ResetGrid();
-            generatePath();
+            continue;
         }
     }
+}
 
-    ResetGrid();
-    generatePath();
+ResetGrid();
+generatePath();
