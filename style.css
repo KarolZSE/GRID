@@ -69,3 +69,11 @@
         border: 1px solid #000;
         box-sizing: border-box;
     }
+
+    .hidden-check {
+        opacity: 0;
+    }
+
+    .player-pipe {
+        background: #fbff15 !important;
+    }
