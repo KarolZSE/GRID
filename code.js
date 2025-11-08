@@ -100,11 +100,9 @@
 
 
     planes = 0;
-    let grid = [];
-    let squares = [];
-    
-    let playerPipes = Array.from({length: 10}, () => Array(10).fill(false));
-    let pipeData = Array.from({length: 10}, () => Array(10).fill(null));
+    let grid = squares = playerPipes = pipeData = [];
+    let currentCheckpointIndex = 0;
+    let allCheckpoints = [];
 
     const pipe_types = {
         'Vertical': [0, 2],
@@ -115,12 +113,23 @@
         'corner-3': [0, 3]
     }
 
+    const directions = [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1]
+    ];
+
+    function ArraySetup(x = false) {
+        return Array.from({length: 10}, () => Array(10).fill(x))
+    }
+
     function ResetGrid() {
         container.innerHTML = '';
         grid = [];
         squares = [];
-        playerPipes = Array.from({length: 10}, () => Array(10).fill(false));
-        pipeData = Array.from({length: 10}, () => Array(10).fill(null));
+        playerPipes = ArraySetup();
+        pipeData = ArraySetup(null);
 
         for (let i = 0; i < 10; i++) {
             grid[i] = [];
@@ -131,10 +140,6 @@
                 square.dataset.row = i;
                 square.dataset.col = j;
 
-                square.textContent = i * j;
-                square.setAttribute('draggable', 'true');
-                square.style.background = '';
-
                 if (Math.random() > 0.6) {
                     square.style.background = '#80807e';
                     grid[i][j] = 1;
@@ -142,10 +147,12 @@
                     grid[i][j] = 0;
                 }
 
+                /*
                 square.addEventListener('dragstart', (e) => {
                     e.dataTransfer.setData('text/plain', null);
                     draggedSquare = square;
                 })
+                */
 
                 square.addEventListener('dragover', (e) => {
                     e.preventDefault();
@@ -153,24 +160,18 @@
 
                 square.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    const row = parseInt(square.dataset.row);
-                    const col = parseInt(square.dataset.col);
 
                     const pipeType = e.dataTransfer.getData('pipe-type');
                     if (pipeType) {
-                        placePipe(row, col, pipeType);
+                        placePipe(i, j, pipeType, e);
                     }
                 });
 
                 square.addEventListener('click', (e) => {
                     e.preventDefault();
                     
-                    const row = parseInt(square.dataset.row);
-                    const col = parseInt(square.dataset.col);
-
-                    playerPipes[row][col] = false;
-                    pipeData[row][col] = null;
-
+                    playerPipes[i][j] = false;
+                    pipeData[i][j] = null;
                     square.classList.remove('player-pipe', 'straightPipes', 'cornerPipes');
                 });
 
@@ -183,13 +184,6 @@
     function isValidPlacement(row, col, tempPipe) {
         const old = pipeData[row][col];
         pipeData[row][col] = tempPipe;
-
-        const directions = [
-            [1, 0],
-            [-1, 0],
-            [0, 1],
-            [0, -1]
-        ];
 
         let adjacentCount = 0;
         let connectingCount = 0;
@@ -207,9 +201,7 @@
 
             adjacentCount++;
 
-            if (canConnect(row, col, nx, ny)) {
-                connectingCount++;
-            }
+            if (canConnect(row, col, nx, ny)) connectingCount++;
         }
 
         pipeData[row][col] = old;
@@ -221,51 +213,18 @@
         return true;
     }
 
-    function rotatePipe(row, col) {
-        if (!pipeData[row][col]) return;
-
-        const OldData = pipeData[row][col];
-        const data = { ...OldData};
-
-        if (data.baseType === 'straight') {
-            data.rotation = (data.rotation + 1) % 2;
-            data.type = data.rotation === 0 ? 'Vertical' : 'Horizontal';
-        } else if (data.baseType === 'corner') {
-            data.rotation = (data.rotation + 1) % 4;
-            data.type = `corner-${data.rotation}`;
-        }
-
-        if (!isValidPlacement(row, col, data)) {
-            return;
-        }
-
-        pipeData[row][col] = data;
-        UpdateVisual(row, col);
-        checkForConnections();
-    }
-
     function UpdateVisual(row, col) {
         const square = squares[row][col];
         const data = pipeData[row][col];
 
-        if (!data) return;
-        let rotation = 0;
-        rotation = data.rotation * 90;
-
-        square.style.transform = `rotate(${rotation}deg)`;
+        if (data) square.style.transform = `rotate(${data.rotation * 90}deg)`;
     }
 
     function getPipeConnections(row, col) {
         const data = pipeData[row][col];
-        if (!data) {
-            const isCheckPoint = allCheckpoints.some(([cx, cy]) => cx === row && cy === col);
-            if (isCheckPoint) {
-                return [0, 1, 2, 3];
-            }
-
-            return [];
-        }
         
+        if (!data) return allCheckpoints.some(([cx, cy]) => cx === row && cy === col) ? [0, 1, 2, 3] : [];
+
         return pipe_types[data.type] || [];
     }
 
@@ -289,62 +248,37 @@
         
         if (dir1 === -1) return false;
 
-        const connection1 = getPipeConnections(row1, col1);
-        const connection2 = getPipeConnections(row2, col2);
-
-        return connection1.includes(dir1) && connection2.includes(dir2);
+        return getPipeConnections(row1, col1).includes(dir1) && getPipeConnections(row2, col2).includes(dir2);
     }
 
-    function placePipe(row, col, pipeType) {
-        const isTargetCheckPoint = currentCheckpointIndex < allCheckpoints.length - 1 && allCheckpoints[currentCheckpointIndex + 1][0] === row && allCheckpoints[currentCheckpointIndex + 1][1] === col;
-        const rotationdrag = parseInt(event?.dataTransfer?.getData('pipe-rotation') || 0);
+    function placePipe(row, col, pipeType, e) {
+        const r = parseInt(e?.dataTransfer?.getData('pipe-rotation') || 0);
+
+        const next = allCheckpoints[currentCheckpointIndex + 1];
+        const isTargetCheckPoint = next && next[0] === row && next[1] === col;
 
         if (playerPipes[row][col] && !isTargetCheckPoint) {
             console.log('Cannot place');
             return false;
         }
 
-        const directions = [
-            [1, 0],
-            [-1, 0],
-            [0, 1],
-            [0, -1]
-        ];
+        const [sx, sy] = allCheckpoints[0];
+        const direct = directions.some(([dx, dy]) => {
+            let [nx, ny] = [row + dx, col + dy];
+            playerPipes[nx][ny] || allCheckpoints.some(([cx, cy]) => cx === nx && cy === ny);
+        });
 
-        let isConnectedToPipe = false;
-
-        for (let [dx, dy] of directions) {
-            let nx = row + dx;
-            let ny = col + dy;
-
-            if (nx < 0 || ny < 0 || nx >= 10 || ny >= 10) continue;
-            
-            const NeighborisCheckPoint = allCheckpoints.some(([cx, cy]) => cx === nx && cy === ny);
-            const NeighborhasPipe = playerPipes[nx][ny];
-
-            if (NeighborhasPipe || NeighborisCheckPoint) {
-                    isConnectedToPipe = true;
-                    break;
-            }
-        }
-
-        const [startX, startY] = allCheckpoints[0];
-        const nearStart = Math.abs(startX - row) + Math.abs(startY - col) === 1;
-
-        if (!isConnectedToPipe && !nearStart) {
-            console.log('not connected to any pipe');
-            return false;
-        }
+        if (direct && Math.abs(sx - row) + Math.abs (sy - col) === 1) return false;
 
         let baseType, type, rotation;
         if (pipeType === 'straight') {
             baseType = 'straight';
-            type = rotationdrag % 2 === 0 ? 'Vertical' : 'Horizontal';
-            rotation = rotationdrag;
+            type = r % 2 === 0 ? 'Vertical' : 'Horizontal';
+            rotation = r;
         } else if (pipeType === 'corner') {
             baseType = 'corner';
-            type = `corner-${rotationdrag}`;
-            rotation = rotationdrag;
+            type = `corner-${r}`;
+            rotation = r;
         }
 
         const candidate = { baseType, type, rotation };
@@ -358,151 +292,67 @@
         pipeData[row][col] = candidate;
 
         const square = squares[row][col];
-        square.classList.add('player-pipe');
-        
-        if (pipeType === 'corner') {
-            square.classList.add('cornerPipes');
-        } else {
-            square.classList.add('straightPipes');
-        }
+        square.classList.add('player-pipe', pipeType === 'corner' ? 'cornerPipes' : 'straightPipes');
 
         UpdateVisual(row, col);
 
-        checkForConnections();
+        if (currentCheckpointIndex >= allCheckpoints.length - 1 && checkAllConnections()) console.log('Game Completed');
 
         return true;
     }
 
     function setupPipes() {
-        const pipes = document.querySelectorAll('#pipes div');
-        pipes.forEach(pipe => {
+        document.querySelectorAll('#pipes div').forEach(pipe => {
             let rotation = 0;
             pipe.setAttribute('draggable', 'true');
-            pipe.addEventListener('click', (e) => {
-                e.preventDefault();
+            pipe.addEventListener('click', () => {
                 rotation = (rotation + 1) % 4;
                 pipe.style.transform = `rotate(${rotation * 90}deg)`;
                 pipe.dataset.rotation = rotation;
             });
 
             pipe.addEventListener('dragstart', (e) => {
-                const pipeType = pipe.dataset.type || 'straight';
-                const rotationValue = pipe.dataset.rotation || 0;
-                e.dataTransfer.setData('pipe-type', pipeType);
-                e.dataTransfer.setData('pipe-rotation', rotationValue);
+                e.dataTransfer.setData('pipe-type', pipe.dataset.type || 'straight');
+                e.dataTransfer.setData('pipe-rotation', pipe.dataset.rotation || 0);
             })
         })
     }
 
-    /*
-        square.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedPipe) {
-                const color = e.dataTransfer.getData('text');
-                square.style.background = color;
-            }
-
-            if (draggedSquare && draggedSquare !== square) {
-                const container = square.parentNode;
-                const temp = document.createElement('div');
-                container.replaceChild(temp, square);
-                container.replaceChild(square, draggedSquare);
-                container.replaceChild(draggedSquare, temp);
-            }
-        });
-        }
-        container.appendChild(document.createElement('br'));
-    }
-    const pipes = document.querySelectorAll('#pipes div');
-
-    pipes.forEach(pipe => {
-        pipe.addEventListener('dragstart', (e) => {
-            draggedPipe = pipe;
-            e.dataTransfer.setData('text', pipe.style.background);
-        });
-    });
-
-    */
-
     function getRandomEdgePoint() {
         let edge = Math.floor(Math.random() * 4);
-        let x, y;
+        let random = Math.floor(Math.random() * 10);
 
-        if (edge === 0) {
-            x = 0;
-            y = Math.floor(Math.random() * 10);
-        } else if (edge === 1) {
-            x = 10 - 1;
-            y = Math.floor(Math.random() * 10);
-        } else if (edge === 2) {
-            x = Math.floor(Math.random() * 10);
-            y = 0;
-        } else {
-            x = Math.floor(Math.random() * 10);
-            y = 10 - 1; 
-        }
-        return [x, y];
+        return edge === 0 ? [0, random] : edge === 1 ? [9, random] : edge === 2 ? [random, 0] : [random, 9];
     }
 
-    function getRandomInnerPoint() {
-        const x = 3 + Math.floor(Math.random() * 4);
-        const y = 3 + Math.floor(Math.random() * 4);
-        return [x, y];
-    }
-
-    function findPath(start, end, maxL = 10) {
+    function findPath(start, end, maxL = 100) {
         let queue = [[[start], null, 0]];
-        let visited = Array.from({ length: 10 }, () => Array(10).fill(false));
+        let visited = ArraySetup();
         visited[start[0]][start[1]] = true;
 
-        const directions = [
-            [1, 0],
-            [-1, 0],
-            [0, 1],
-            [0, -1]
-        ];
-
-        while (queue.length > 0) {
+        while (queue.length) {
             let [path, lastDir, lCount] = queue.shift();
-            let [x, y] = path[path.length - 1];
+            let [x, y] = path.at(-1);
 
             if (x === end[0] && y === end[1]) return path;
 
             for (let [dx, dy] of directions) {
-                let nx = x + dx;
-                let ny = y + dy;
+                let [nx, ny] = [x + dx, y + dy];
 
-                if (nx >= 0 && ny >= 0 && nx < 10 && ny < 10 && grid[nx][ny] === 0) {
+                if (nx < 0 || ny < 0 || nx >= 10 || ny >= 10 || grid[nx][ny]) continue;
 
                     let isTurn = lastDir && (dx !== lastDir[0] || dy !== lastDir[1]);
                     let newLCount = lCount + (isTurn ? 1 : 0);
 
-                    if (newLCount > maxL) continue;
+                    if (newLCount > maxL || visited[nx][ny]) continue;
 
-                    if (!visited[nx][ny]) {
-                        visited[nx][ny] = true;
-                        queue.push([
-                            [...path, [nx, ny]],
-                            [dx, dy],
-                            newLCount
-                        ]);
-                    }
-                }
+                    visited[nx][ny] = true;
+                    queue.push([[...path, [nx, ny]], [dx, dy], newLCount]);
             }
         }
 
         return null;
     }
-
-    function drawPipe(path) {
-        if (!path) return;
-        for (let j = 1; j < path.length - 1; j++) {
-            grid[path[j][0]][path[j][1]] = 1;
-        }
-    }
-
-    let currentCheckpointIndex = 0;
-    let allCheckpoints = [];
 
 function generatePath() {
     let allPathsValid = false;
@@ -521,7 +371,7 @@ function generatePath() {
             middles = [];
 
             for (let i = 0; i < 3; i++) {
-                middles.push(getRandomInnerPoint());
+                middles.push([3 + Math.floor(Math.random() * 4), 3 + Math.floor(Math.random() * 4)]);
             }
             
             end = getRandomEdgePoint();
@@ -567,7 +417,7 @@ function generatePath() {
         for (let i = 0; i < allPoints.length - 1; i++) {
             const path = findPath(allPoints[i], allPoints[i + 1]);
             if (path) {
-                drawPipe(path);
+                path.slice(1, -1).forEach(([x, y]) => grid[x][y] = 1);
             } else {
                 allPathsValid = false;
                 break;
@@ -683,13 +533,6 @@ function isConnected(start, end) {
         let visited = Array.from({ length: 10 }, () => Array(10).fill(false));
         visited[startX][startY] = true;
 
-        const directions = [
-            [1, 0],
-            [-1, 0],
-            [0, 1],
-            [0, -1]
-        ];
-
         while (queue.length > 0) {
             let [x, y] = queue.shift();
 
@@ -716,15 +559,6 @@ function isConnected(start, end) {
         }
 
     return false;
-}
-
-function checkForConnections() {
-    if (currentCheckpointIndex >= allCheckpoints.length - 1) {
-        const allComplete = checkAllConnections();
-        if (allComplete) {
-            console.log('Game Completed');
-        }
-    }
 }
 
 function checkAllConnections() {
