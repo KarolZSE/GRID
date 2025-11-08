@@ -162,9 +162,17 @@
                     }
                 });
 
-                square.onclick = function() {
-                    rotatePipe(i, j);
-                }
+                square.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const row = parseInt(square.dataset.row);
+                    const col = parseInt(square.dataset.col);
+
+                    playerPipes[row][col] = false;
+                    pipeData[row][col] = null;
+
+                    square.classList.remove('player-pipe', 'straightPipes', 'cornerPipes');
+                });
 
                 container.appendChild(square);
                 squares[i][j] = square;
@@ -201,9 +209,6 @@
 
             if (canConnect(row, col, nx, ny)) {
                 connectingCount++;
-            } else {
-                pipeData[row][col] = old;
-                return false;
             }
         }
 
