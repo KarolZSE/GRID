@@ -4,37 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button onclick="ReplicateStones()">123</button>
-    <div id="pipes">
-        <div data-type="straight" draggable="true" style="
-        background: url('Pipes.png');
-        background-position: 0px 0px; 
-        background-size: 120px 240px;">|</div>
-        <div data-type="corner" draggable="true" style="
-        background: url('Pipes.png');
-        background-position: -60px 0px; 
-        background-size: 120px 240px;">↰</div>
+    <div style="display: grid; 
+    grid-template-columns: repeat(3, auto);
+    width: 80%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);">
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
     </div>
-    <div id="flags">
-        <span>Flags Left:<span id="flagsCount"></span></span>
-        <div class="flag" style="width: 60px; height: 60px;"></div>
-    </div>
-<table width="720px" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
-    <tr>
-        <td colspan="3"><div class="contr" id="verticaltop" style="width: 100%; grid-template-columns: repeat(11, 60px);"><div></div></div></td>
-    </tr>
-    <tr>
-        <td><div class="contr" id="horizontalleft" style="height: 100%; width: 60px; grid-template-rows: repeat(10, 60px);"></div></td>
-        <td><div id="container"></div></td>
-        <td><div class="contr" style="height: 100%; grid-template-rows: repeat(10, 60px);"></div></td>
-    </tr>
-    <tr>
-        <td colspan="3"><div class="contr" id="verticalbottom" style="width: 100%; grid-template-columns: repeat(11, 60px);"><div></div></div></td>
-    </tr>   
-</table>
 </body>
-<script src="code.js"></script>
 </html>

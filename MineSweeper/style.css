@@ -41,55 +41,9 @@
         user-select: none;
     }
 
-    .pipe {
-        background: #ff47476c !important;
-    }
-
-    .rock {
-        background: #a86262 !important;
-    }
-
-    .start {
-        background: #28c713 !important;
-    }
-
-    .end {
-        background: #c71313 !important;
-    }
-
-    .middle-end {
-        border: 3px solid #a8ff07 !important;
-        box-sizing: border-box;
-    }
-
     .square {
         width: 40px;
         height: 40px;
         border: 1px solid #000;
         box-sizing: border-box;
-    }
-
-    .hidden-check {
-        opacity: 0;
-    }
-
-    .player-pipe {
-    }
-
-    .cornerPipes {
-        background: url('Pipes.png');
-        background-position: -60px 0px; 
-        background-size: 120px 240px; 
-    }
-
-    .straightPipes {
-        background: url('Pipes.png');
-        background-position: 0px 0px; 
-        background-size: 120px 240px;
-    }
-
-    .flag {
-        background: url('flag.png');
-        background-position: 0px 0px; 
-        background-size: 60px 60px;
     }

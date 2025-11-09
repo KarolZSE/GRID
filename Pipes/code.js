@@ -1,106 +1,5 @@
-    const container = document.getElementById('container'); 
+    const container = document.getElementById('container');
 
-    for (let i = 0; i < 100; i++) {
-        const square = document.createElement('div');
-        square.textContent = i;
-        square.style.background = '#664c28';
-        if (Math.random() > 0.7) square.style.background = '#80807e';
-        container.appendChild(square);
-    }
-
-    let planes = 5;
-    const contr = document.querySelectorAll('.contr');
-    contr.forEach(e => {
-        for (let i = 0; i < 10; i++) {
-            const square = document.createElement('button');
-            square.textContent = i;
-            e.appendChild(square);
-            square.onclick = function() {
-                if (!planes) {
-                    CountFilledSquares();
-                    return;
-                };
-
-                const plane = document.createElement('div');
-                plane.classList.add('plane');
-
-                const containerRect = container.getBoundingClientRect();
-
-                if (e.id == 'verticaltop') {
-                    plane.style.left = (containerRect.left + i * 60) + 'px';
-                    plane.style.top = (containerRect.top - 60) + 'px';
-                    setTimeout(() => {
-                        plane.style.top = (containerRect.top + 600) + 'px';
-                    }, 0);
-                } else if (e.id == 'verticalbottom') {
-                    plane.style.left = (containerRect.left + i * 60) + 'px';
-                    plane.style.top = (containerRect.top + 600) + 'px';
-                    setTimeout(() => {
-                        plane.style.top = (containerRect.top - 60) + 'px';
-                    }, 0);
-                } else if (e.id == 'horizontalleft'){
-                    plane.style.left = (containerRect.left - 60) + 'px';
-                    plane.style.top = (containerRect.top + i * 60) + 'px';
-                    setTimeout(() => {
-                        plane.style.left = (containerRect.left + 600) + 'px';
-                    }, 0);
-                } else {
-                    plane.style.left = (containerRect.left + 600) + 'px';
-                    plane.style.top = (containerRect.top + i * 60) + 'px';
-                    setTimeout(() => {
-                        plane.style.left = (containerRect.left - 60) + 'px';
-                    }, 0);
-                }
-                setTimeout(() => {
-                    plane.remove();
-                }, 1000);
-
-                document.body.appendChild(plane);
-
-                for (let j = 0; j < 10; j++) {
-                    let gridsquare;
-                    if (e.id == 'verticaltop') {
-                        gridsquare = container.children[i + j * 10];
-                    } else if (e.id == 'verticalbottom') {
-                        gridsquare = container.children[100 - (10 - i + j * 10)];
-                    } else if (e.id == 'horizontalleft'){
-                        gridsquare = container.children[i * 10 + j];
-                    } else {
-                        gridsquare = container.children[i * 10 + 9 - j];
-                    }
-
-                    setTimeout(() => {
-                        if (gridsquare.style.background !== 'rgb(128, 128, 126)') {
-                            gridsquare.style.background = '#000000';
-                        } 
-                    }, 100 * j);
-                }
-                square.onclick = '';
-                planes--;
-            }
-        }
-    });
-
-    function CountFilledSquares() {
-        let count = stonescount = 0;
-        const child = container.children;
-
-        for (let i = 0; i < 100; i++) {
-            const childbg = child[i].style.background;
-            if (childbg == 'rgb(0, 0, 0)') {
-                count++
-            }
-
-            if (childbg == 'rgb(128, 128, 126)') {
-                stonescount++
-            }
-        }
-
-        console.log(`You had filled in ${count}, which equals to ${(count / (100 - stonescount) * 100).toFixed(2)}% of the board (excluding bolders).`);
-    }
-
-
-    planes = 0;
     let grid = [];
     let squares = [];
     let playerPipes = [];
@@ -129,24 +28,25 @@
     }
 
     let sharedStoneData = ArraySetup();
-    let defaultGrid = [[1, 1, 0, 0, 1, 1, 1, 0, 0, 0],
-[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-[1, 1, 0, 1, 0, 0, 0, 0, 1, 0],
-[0, 0, 0, 0, 1, 0, 0, 1, 0, 1],
-[0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-[1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-[0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-[1, 0, 1, 0, 0, 0, 0, 0, 0, 0]]
+    let defaultGrid = [ 
+[0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+[1, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+[0, 1, 0, 0, 0, 1, 1, 0, 0, 0],
+[1, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+[1, 0, 0, 0, 1, 0, 0, 1, 1, 1],
+[1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
+[0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+[0, 1, 0, 1, 0, 1, 1, 0, 1, 1],
+[1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
+[0, 0, 1, 0, 1, 1, 0, 1, 0, 0]];
 
+    let defaultCheckPoint = [[1, 9], [2, 2], [5, 5], [0, 5]];
     function ResetGrid() {
         container.innerHTML = '';
         grid = [];
         squares = [];
         playerPipes = ArraySetup();
         pipeData = ArraySetup(null);
-        let useDefult = Date.now() - date > 10000;
 
         for (let i = 0; i < 10; i++) {
             grid[i] = [];
@@ -157,11 +57,7 @@
                 square.dataset.row = i;
                 square.dataset.col = j;
 
-                if ((useDefult && defaultGrid[i][j] === 1)) {
-                    square.style.background = '#80807e';
-                    grid[i][j] = 1;
-                    sharedStoneData[i][j] = 1;
-                } else if (!useDefult && Math.random() > 0.6) {
+                if (Math.random() > 0.6) {
                     square.style.background = '#80807e';
                     grid[i][j] = 1;
                     sharedStoneData[i][j] = 1;
@@ -612,155 +508,3 @@ function checkConnection(playerPath) {
 const date = Date.now();
 ResetGrid();
 generatePath();
-
-
-// minesweeper
-    const directionsExtended = [
-        [1, 0],
-        [-1, 0],
-        [0, 1],
-        [0, -1],
-        [1, 1],
-        [-1, 1],
-        [-1, -1],
-        [1, -1]
-    ];
-    
-function CountStones() {
-        stonescount = 0;
-        const child = container.children;
-
-        for (let i = 0; i < 100; i++) {
-            const childbg = child[i].style.background;
-            if (childbg == 'rgb(128, 128, 126)') {
-                stonescount++
-            }
-        }
-
-        return stonescount;
-    }
-
-    const flagsCount = document.getElementById('flagsCount');
-
-function ReplicateStones() {
-
-    let Flags = CountStones();
-    const totalMines = Flags;
-    flagsCount.textContent = Flags;
-
-    let revealed = ArraySetup();
-    let flagged = ArraySetup();
-    let gameOver = false;
-
-    revealRandomSafeCell();
-
-    for (let i = 0; i < 10; i++) {
-        for (let j = 0; j < 10; j++) {
-            let square = squares[i][j];
-
-            square.className = '';
-            square.classList.add('square', 'unrevealed');
-            square.textContent = '';
-
-            square.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (gameOver || revealed[i][j] || flagged[i][j]) return;
-                if (square.style.background == 'rgb(128, 128, 126)') {
-                    square.classList.remove('unrevealed');
-                    square.classList.add('mine-hit');
-                    square.textContent = 'BOOM!';
-                    gameOver = true;
-                    for (let k = 0; k < 10; k++) {
-                        for (let l = 0; l < 10; l++) {
-                            if (squares[k][l].style.background == 'rgb(128, 128, 126)' && !flagged[k][l]) {
-                                squares[k][l].classList.remove('unrevealed');
-                                squares[k][l].textContent = 'BOOM!';
-                            }
-                        }
-                    }
-                } else {
-                    revealCell(i, j);
-                }
-            });
-
-            square.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                if (gameOver || revealed[i][j]) return;
-
-                if (flagged[i][j]) {
-                    square.classList.remove('flag');
-                    square.textContent = '';
-                    flagged[i][j] = false;
-                    Flags++;
-                } else if (Flags > 0) {
-                    square.classList.add('flag');
-                    square.textContent = 'flag';
-                    flagged[i][j] = true;
-                    Flags--;
-                }
-  
-                flagsCount.textContent = Flags;
-                checkWinCondition();
-            });
-        }
-    }
-
-    function revealCell(i, j) {
-        if (i < 0 || i >= 10 || j < 0 || j >= 10) return;
-        if (revealed[i][j] || flagged[i][j]) return;
-
-        let square = squares[i][j];
-        
-        revealed[i][j] = true;
-        square.classList.remove('unrevealed');
-        square.classList.add('revealed');
-
-        let BolderCount = 0;
-        for (let [dx, dy] of directionsExtended) {
-            let ni = i + dx;
-            let nj = j + dy;
-            if (ni >= 0 && ni < 10 && nj >= 0 && nj < 10 && squares[ni][nj].style.background == 'rgb(128, 128, 126)') BolderCount++;
-        }
-
-        if (BolderCount > 0) {
-            square.textContent = BolderCount;
-        } else {
-            for (let [dx, dy] of directionsExtended) {
-                revealCell(i + dx, j + dy);
-            }
-        }
-
-        checkWinCondition();
-    }
-
-    function checkWinCondition() {
-        let revealedCount = 0;
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
-                if (revealed[i][j]) revealedCount++;
-            }
-        }
-
-        if (revealedCount === 100 - totalMines) {
-            gameOver = true;
-            console.log('You found all stones!');
-        }
-    }
-
-    function revealRandomSafeCell() {
-        let safeCells = [];
-    
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
-                if (squares[i][j].style.background != 'rgb(128, 128, 126)') {
-                    safeCells.push([i, j]);
-                }
-            }
-        }
-
-        if (safeCells.length > 0) {
-            const [startX, startY] = safeCells[Math.floor(Math.random() * safeCells.length)];
-            revealCell(startX, startY);
-        }
-    }
-}

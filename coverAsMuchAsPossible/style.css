@@ -1,0 +1,29 @@
+    #container {
+        display: grid;
+        grid-template-columns: repeat(10, 60px);
+        width: 600px;
+        height: 600px;
+        text-align: center;
+    }
+
+    #container div {
+        width: 60px;
+        height: 60px;
+        user-select: none;
+        display: inline-block;
+        box-sizing: border-box;
+    }
+
+    .contr {
+        display: grid;
+        width: 60px;
+        height: 60px;
+    }
+
+    .plane {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border: 1px solid black;
+        transition: all 1s linear;
+    }
