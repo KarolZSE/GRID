@@ -100,7 +100,10 @@
 
 
     planes = 0;
-    let grid = squares = playerPipes = pipeData = [];
+    let grid = [];
+    let squares = [];
+    let playerPipes = [];
+    let pipeData = [];
     let currentCheckpointIndex = 0;
     let allCheckpoints = [];
 
@@ -588,3 +591,98 @@ function checkConnection(playerPath) {
 const date = Date.now();
 ResetGrid();
 generatePath();
+
+
+// minesweeper
+    const directionsExtended = [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+        [1, 1],
+        [-1, 1],
+        [-1, -1],
+        [1, -1]
+    ];
+    
+function CountStones() {
+        stonescount = 0;
+        const child = container.children;
+
+        for (let i = 0; i < 100; i++) {
+            const childbg = child[i].style.background;
+            if (childbg == 'rgb(128, 128, 126)') {
+                stonescount++
+            }
+        }
+
+        return stonescount;
+    }
+
+    const flagsCount = document.getElementById('flagsCount');
+
+function ReplicateStones() {
+    let Flags = CountStones();
+    flagsCount.textContent = Flags;
+
+    let revealed = ArraySetup();
+    let flagged = ArraySetup();
+    let gameOver = false;
+    
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            let square = squares[i][j];
+
+            square.className = '';
+            square.classList.add('square', 'unrevealed');
+            square.textContent = '';
+
+            square.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (gameOver || revealed[i][j] || flagged[i][j]) return;
+                if (square.style.background == 'rgb(128, 128, 126)') {
+                    square.classList.remove('unrevealed');
+                    square.classList.add('mine-hit');
+                    square.textContent = 'BOOM!';
+                    gameOver = true;
+                    RevealAllMines();
+                } else {
+                    revealCell(i, j);
+                }
+            });
+            
+                square.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('You shovel broke!')
+                });
+
+            } else {
+                square.addEventListener('click', () => {
+                    let BolderCount = 0;
+
+                    for (let [dx, dy] of directionsExtended) {
+                        let ni = i + dx;
+                        let nj = j + dy;
+                        if (ni >= 0 && ni < 10 && nj >= 0 && nj < 10) {
+                            if (grid[ni][nj] === 1) {
+                                BolderCount++;
+                            }
+                        }
+                    }
+                    square.textContent = BolderCount;
+                });
+            }
+
+            square.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                square.classList.add('flag');
+                flagsCount.textContent = --Flags;
+                if (Flags <= 0) {
+                    console.log('Done!');
+                }
+            });
+
+            square.style = '';
+        }
+    }
+}

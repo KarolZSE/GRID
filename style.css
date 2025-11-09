@@ -87,3 +87,9 @@
         background-position: 0px 0px; 
         background-size: 120px 240px;
     }
+
+    .flag {
+        background: url('flag.png');
+        background-position: 0px 0px; 
+        background-size: 60px 60px;
+    }

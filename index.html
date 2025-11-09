@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button onclick="revealNextCheckpoint()">123</button>
+    <button onclick="ReplicateStones()">123</button>
     <div id="pipes">
         <div data-type="straight" draggable="true" style="
         background: url('Pipes.png');
@@ -17,6 +17,10 @@
         background: url('Pipes.png');
         background-position: -60px 0px; 
         background-size: 120px 240px;">↰</div>
+    </div>
+    <div id="flags">
+        <span>Flags Left:<span id="flagsCount"></span></span>
+        <div class="flag" style="width: 60px; height: 60px;"></div>
     </div>
 <table width="720px" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
     <tr>
