@@ -2,7 +2,7 @@
 This week I didn't have a a specific Idea for a game so I made 3 minigames (to be honest pipes is so large it could be its own game).
 Here is how to play them:
 
-- **Minesweeper** - It works like a regular minesweeper, but you don't uncover a large area at the start, so it's much harder.
+- **Minesweeper** - It works like a regular minesweeper (left click to check for bombs, right click to place a flag), but you don't uncover a large area at the start, so it's much harder.
 - **Pipes** - The biggest game in here you have to connect pipes to points:
   - At first pick a rotation in which you want your pipe to be placed, by **Left Clicking** on the icon on the bar below (hot bar?).
   - Then **drag and drop** the pipe from the icon to where you want to place it on the canvas (more accurately a container), you can only place the pipe next to another pipe or specific point (start point, checkpoints, endpoint).
@@ -20,3 +20,4 @@ Here is how to play them:
 - Planes textures - https://clavs.itch.io/pixel-planes-assets-pack AUTHOR Clavs ON THE LICENCE CC BY
 - The grass in plant - https://wrlck.itch.io/simple-desert AUTHOR wrlck
 - The flag (in minesweeper) - [Flag Vectors by Vecteezy](https://www.vecteezy.com/free-vector/flag)
+
