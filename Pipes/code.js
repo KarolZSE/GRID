@@ -1,4 +1,5 @@
     const container = document.getElementById('container');
+    const Info = document.getElementById('Info');
 
     let grid = [];
     let squares = [];
@@ -27,7 +28,6 @@
         return Array.from({length: 10}, () => Array(10).fill(x))
     }
 
-    let sharedStoneData = ArraySetup();
     let defaultGrid = [ 
 [0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
 [1, 1, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -60,10 +60,8 @@
                 if (Math.random() > 0.6) {
                     square.style.background = '#80807e';
                     grid[i][j] = 1;
-                    sharedStoneData[i][j] = 1;
                 } else {
                     grid[i][j] = 0;
-                    sharedStoneData[i][j] = 0;
                 }
 
                 /*
@@ -177,7 +175,10 @@
         const isTargetCheckPoint = next && next[0] === row && next[1] === col;
 
         if (playerPipes[row][col] && !isTargetCheckPoint) {
-            console.log('Cannot place');
+            Info.textContent = 'You cannot place the pipe here!';
+            setTimeout(() => {
+                Info.textContent = '';
+            }, 3000);
             return false;
         }
 
@@ -203,7 +204,10 @@
         const candidate = { baseType, type, rotation };
 
         if (!isValidPlacement(row, col, candidate)) {
-            console.log('Missalign');
+            Info.textContent = 'The pipe your trying to place is misaligned!';
+            setTimeout(() => {
+                Info.textContent = '';
+            }, 3000);
             return false;
         }
 
@@ -215,7 +219,9 @@
 
         UpdateVisual(row, col);
 
-        if (currentCheckpointIndex >= allCheckpoints.length - 1 && checkAllConnections()) console.log('Game Completed');
+        if (currentCheckpointIndex >= allCheckpoints.length - 1 && checkAllConnections()) {
+            Info.textContent = 'You have completed the game! Congratulations!';
+        }
 
         return true;
     }
@@ -325,7 +331,6 @@ function generatePath() {
         }
 
         if (attemps >= 50) {
-            console.log('No solution');
             ResetGrid();
             continue;
         }
@@ -346,7 +351,6 @@ function generatePath() {
         if (allPathsValid) {
             allCheckpoints = [start, ...middles, end];
             const observers = [];
-            console.log(sharedStoneData);
 
             allCheckpoints.forEach(([cx, cy], index) => {
                 const sq = squares[cx][cy];
@@ -354,15 +358,12 @@ function generatePath() {
 
                 if (index === 0) {
                     sq.classList.add('start');
-                    sq.style.opacity = '1';
                 } else if (index === allCheckpoints.length - 1) {
                     sq.classList.add('hidden-check');
                     sq.classList.add('end');
-                    sq.style.opacity = '0';
                 } else {
                     sq.classList.add('hidden-check');
                     sq.classList.add('middle-end');
-                    sq.style.opacity = '0';
                 }
 
                 const observer = new MutationObserver((mutation) => {
@@ -371,7 +372,6 @@ function generatePath() {
                         if (!first) return;
                         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                             if (sq.classList.contains('player-pipe') && sq.classList.contains('middle-end') && !sq.classList.contains('hidden-check')) {
-                                console.log('test1');
                                 first = false;
                                 observer.disconnect();
                                 setTimeout(() => {
@@ -393,9 +393,7 @@ function generatePath() {
             currentCheckpointIndex = 0;
             playerPipes[start[0]][start[1]] = true;
 
-            // console.log(end, end[0] > 2 && end[0] < 7 && end[1] > 2 && end[1] < 7);
-            console.log(Date.now() - date);            
-            // console.log(start, end);
+            Info.textContent = `Done! After ${((Date.now() - date) / 1000).toFixed(2)} seconds.`;      
             setupPipes();
 
             revealCurrentCheckpoint();
@@ -404,7 +402,6 @@ function generatePath() {
 
             break;
         } else {
-            console.log('No path found!')
             ResetGrid();
             continue;
         }
@@ -413,7 +410,10 @@ function generatePath() {
 
 function revealCurrentCheckpoint() {
     if (currentCheckpointIndex >= allCheckpoints.length) {
-        console.log('All check reveal');
+        Info.textContent = 'A next point for conecting the pipe has been showned!';
+        setTimeout(() => {
+            Info.textContent = '';
+        }, 3000);  
         return;
     }
 
@@ -421,7 +421,6 @@ function revealCurrentCheckpoint() {
     const square = squares[x][y];
 
     square.classList.remove('hidden-check');
-    square.style.opacity = '1';
 
     if (currentCheckpointIndex === 0) {
         square.classList.add('start');
@@ -439,10 +438,7 @@ function revealNextCheckpoint() {
     if (currentCheckpointIndex < allCheckpoints.length) {
         revealCurrentCheckpoint()
         return true;
-    } else {
-        console.log('No more');
-        return false;
-    }
+    } else return false;
 }
 
 function isConnected(start, end) {

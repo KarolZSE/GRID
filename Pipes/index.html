@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Pipes</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="pipes">
-        <div data-type="straight" draggable="true" style="
-        background: url('Pipes.png');
-        background-position: 0px 0px; 
-        background-size: 120px 240px;">|</div>
-        <div data-type="corner" draggable="true" style="
-        background: url('Pipes.png');
-        background-position: -60px 0px; 
-        background-size: 120px 240px;">↰</div>
-    </div>
+    <h1 id="Info">Your game is loading! Please wait!</h1>
 <table width="720px" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
     <tr>
         <td><div id="container"></div></td>
-    </tr>  
+    </tr>
+    <tr>
+        <td>
+            <div id="pipes">
+                <div data-type="straight" draggable="true" style="
+                background: url('Pipes.png');
+                background-position: 0px 0px; 
+                background-size: 120px 240px;"></div>
+                <div data-type="corner" draggable="true" style="
+                background: url('Pipes.png');
+                background-position: -60px 0px; 
+                background-size: 120px 240px;"></div>
+            </div>
+        </td>
+    </tr> 
 </table>
 </body>
 <script src="code.js"></script>

@@ -3,19 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Main Menu</title>
+    <style>
+        body > div {
+            display: grid; 
+            grid-template-columns: repeat(3, auto);
+            width: 80%;
+            height: 50%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        body > h1, h3 {
+            text-align: center;
+        }
+
+        body > div > div > div {
+            width: 100%;
+            height: 100%;
+        }
+
+    </style>
 </head>
 <body>
-    <div style="display: grid; 
-    grid-template-columns: repeat(3, auto);
-    width: 80%;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);">
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-    </div>
+    <br>
+    <h1>Which game do you want to play?</h1>
+    <h3>For info on how to play please visit the README</h3>
+    <div>
+        <div onclick="window.location.href='MineSweeper/index.html'">
+            <h1>MineSweeper</h1>
+            <div style="background: url('mine.png'); background-size: contain; background-repeat: no-repeat;"></div>
+        </div>
+        <div onclick="window.location.href='Pipes/index.html'">
+            <h1>Pipes (long load)</h1>
+            <div style="background: url('pipe.png'); background-size: contain; background-repeat: no-repeat;"></div>
+        </div>
+        <div onclick="window.location.href='coverAsMuchAsPossible/index.html'">
+            <h1>Plant</h1>
+            <div style="background: url('plant.png'); background-size: contain; background-repeat: no-repeat;"></div>
+        </div>
+</div>
 </body>
 </html>

@@ -24,6 +24,19 @@
         position: absolute;
         width: 60px;
         height: 60px;
-        border: 1px solid black;
         transition: all 1s linear;
+        background-image: url('Planes.png');
+        background-size: 240px 60px;
+    }
+
+    .farmland {
+        background-color: #463319 !important;
+        background-image: url('Desert1.png') !important;
+        background-size: 64px 32px;
+    }
+
+    #Info {
+        position: absolute; 
+        left: 50%; 
+        transform: translate(-50%);
     }

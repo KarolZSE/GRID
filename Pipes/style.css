@@ -48,7 +48,8 @@
     }
 
     .hidden-check {
-        opacity: 0;
+        border: 1px solid #000 !important;
+        background: white !important;
     }
 
     .cornerPipes {
@@ -61,4 +62,10 @@
         background: url('Pipes.png');
         background-position: 0px 0px; 
         background-size: 120px 240px;
+    }
+
+    #Info {
+        position: absolute; 
+        left: 50%; 
+        transform: translate(-50%);
     }

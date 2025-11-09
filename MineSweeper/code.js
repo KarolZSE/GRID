@@ -1,4 +1,7 @@
 const container = document.getElementById('container');
+const flagsCount = document.getElementById('flagsCount');
+let squares = [];
+
     const directionsExtended = [
         [1, 0],
         [-1, 0],
@@ -10,13 +13,17 @@ const container = document.getElementById('container');
         [1, -1]
     ];
 
+function ArraySetup(x = false) {
+        return Array.from({length: 10}, () => Array(10).fill(x))
+    }
+
 function CountStones() {
-        stonescount = 0;
+        let stonescount = 0;
         const child = container.children;
 
         for (let i = 0; i < 100; i++) {
             const childbg = child[i].style.background;
-            if (childbg == 'rgb(128, 128, 126)') {
+            if (childbg == 'rgba(128, 128, 126, 0)') {
                 stonescount++
             }
         }
@@ -24,42 +31,56 @@ function CountStones() {
         return stonescount;
     }
 
-    const flagsCount = document.getElementById('flagsCount');
 
 function ReplicateStones() {
-
-    let Flags = CountStones();
-    const totalMines = Flags;
-    flagsCount.textContent = Flags;
+    container.innerHTML = '';
+    squares = [];
 
     let revealed = ArraySetup();
     let flagged = ArraySetup();
     let gameOver = false;
 
-    revealRandomSafeCell();
+    for (let i = 0; i < 10; i++) {
+        squares[i] = [];
+
+        for (let j = 0; j < 10; j++) {
+            const square = document.createElement('div');
+            square.classList.add('square', 'unrevealed');
+            square.dataset.row = i;
+            square.dataset.col = j;
+
+            if (Math.random() > 0.6) {
+                square.style.background = 'rgba(128, 128, 126, 0)';
+            }
+
+            container.appendChild(square);
+            squares[i][j] = square;
+        }
+    }
+
+    let Flags = CountStones();
+    const totalMines = Flags;
+    flagsCount.textContent = Flags;
 
     for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
             let square = squares[i][j];
 
-            square.className = '';
-            square.classList.add('square', 'unrevealed');
-            square.textContent = '';
-            if (square.style.background == 'rgb(128, 128, 126)') square.style.background = 'rgba(128, 128, 126, 0)';
-
             square.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (gameOver || revealed[i][j] || flagged[i][j]) return;
-                if (square.style.background == 'rgb(128, 128, 126)') {
+
+                if (square.style.background == 'rgba(128, 128, 126, 0)') {
                     square.classList.remove('unrevealed');
                     square.classList.add('mine-hit');
-                    square.textContent = 'BOOM!';
+                    square.classList.add('mine');
                     gameOver = true;
+
                     for (let k = 0; k < 10; k++) {
                         for (let l = 0; l < 10; l++) {
                             if (squares[k][l].style.background == 'rgba(128, 128, 126, 0)' && !flagged[k][l]) {
                                 squares[k][l].classList.remove('unrevealed');
-                                squares[k][l].textContent = 'BOOM!';
+                                squares[k][l].classList.add('mine');
                             }
                         }
                     }
@@ -79,7 +100,6 @@ function ReplicateStones() {
                     Flags++;
                 } else if (Flags > 0) {
                     square.classList.add('flag');
-                    square.textContent = 'flag';
                     flagged[i][j] = true;
                     Flags--;
                 }
@@ -89,6 +109,7 @@ function ReplicateStones() {
             });
         }
     }
+
 
     function revealCell(i, j) {
         if (i < 0 || i >= 10 || j < 0 || j >= 10) return;
@@ -104,7 +125,7 @@ function ReplicateStones() {
         for (let [dx, dy] of directionsExtended) {
             let ni = i + dx;
             let nj = j + dy;
-            if (ni >= 0 && ni < 10 && nj >= 0 && nj < 10 && squares[ni][nj].style.background == 'rgb(128, 128, 126)') BolderCount++;
+            if (ni >= 0 && ni < 10 && nj >= 0 && nj < 10 && squares[ni][nj].style.background == 'rgba(128, 128, 126, 0)') BolderCount++;
         }
 
         if (BolderCount > 0) {
@@ -148,4 +169,8 @@ function ReplicateStones() {
             revealCell(startX, startY);
         }
     }
+
+    revealRandomSafeCell();
 }
+
+ReplicateStones();
